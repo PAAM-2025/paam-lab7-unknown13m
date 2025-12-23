@@ -48,30 +48,47 @@ class MyForegroundService : Service() {
     }
 
     private fun buildNotification(msg: String, progress: Int): Notification {
-        // TODO 2: Create a NotificationCompat.Builder inside your service
-        //   - Use "service_channel" as the channelId
-        //   - Set a title, text, and small icon
-        //   - Mark the notification as ongoing (persistent)`
-        return TODO("Provide the return value")
 
-        // TODO 3: Create a different notification with NotificationCompat.Builder inside your service
-        // that opens a certain screen when you press on it. Comment one implementation when you're done
+        
+        return NotificationCompat.Builder(this, "service_channel")
+            .setContentTitle("Foreground Service")
+            .setContentText(msg)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .build()
+
+        /*
+        // sau mai merge asa cu notificare care deschide o activitate 
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        return NotificationCompat.Builder(this, "service_channel")
+            .setContentTitle("Foreground Service")
+            .setContentText(msg)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .build()
+        */
     }
+
     private fun updateNotification(msg: String, progress: Int) {
         val manager = NotificationManagerCompat.from(this)
         val notification = buildNotification(msg, progress)
 
-        // Runtime permission check for Android 13+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             ActivityCompat.checkSelfPermission(
                 this,
-                android.Manifest.permission.POST_NOTIFICATIONS
+                Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             manager.notify(1, notification)
         }
     }
-
 
     override fun onDestroy() {
         isRunning = false
